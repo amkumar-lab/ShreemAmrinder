@@ -1,0 +1,568 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Beej Mantra Day 12</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rozha+One&family=Mukta:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: a topic hub (four parts, tile grid) that opens into one full slide at a time, with prev/next and a jump-to-video link */
+:root{
+  /* Hindu auspicious palette: sindoor/kumkum red, saffron (bhagwa), haldi yellow, marigold, deep maroon */
+  --bg:#FFF7E6; --surface:#FFFDF7; --ink:#4A0D12; --muted:#7A3B2E; --line:#F0D3A0;
+  --accent:#B3121B; --accent-soft:#FDE1D2; --gold:#D97706; --gold-soft:#FFEBB8;
+  --saffron:#FF9933; --haldi:#F4B400;
+  --display:"Rozha One","Tiro Devanagari Hindi",Georgia,serif;
+  --body:"Mukta","Noto Sans Devanagari","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#2B0A0D; --surface:#3D1015; --ink:#FFF0D6; --muted:#E8B98F; --line:#6A2228;
+  --accent:#FF9933; --accent-soft:#5A1A18; --gold:#F4B400; --gold-soft:#4A2A10;
+  --saffron:#FF9933; --haldi:#F4B400; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#2B0A0D; --surface:#3D1015; --ink:#FFF0D6; --muted:#E8B98F; --line:#6A2228;
+  --accent:#FF9933; --accent-soft:#5A1A18; --gold:#F4B400; --gold-soft:#4A2A10;
+  --saffron:#FF9933; --haldi:#F4B400; color-scheme:dark}
+.hero{border-top:6px solid;border-image:linear-gradient(90deg,var(--saffron),var(--haldi) 50%,var(--accent)) 1;padding-top:20px}
+.tile{border-top:3px solid var(--saffron)}
+.start{background:var(--accent)!important;color:#FFF7E6!important}
+.callout{border-left:4px solid var(--haldi)}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;padding-inline:16px;padding-block:0}
+.wrap{max-width:1040px;margin:0 auto;padding-block:28px 64px}
+h1,h2,h3{font-family:var(--display);font-weight:400;line-height:1.15;text-wrap:balance;margin:0}
+.dev{font-family:var(--display);}
+button{font:inherit;color:inherit}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:6px}
+
+/* hub */
+.hero{display:grid;gap:14px;padding-block:8px 28px;border-bottom:1px solid var(--line);margin-bottom:28px}
+.eyebrow{font-family:var(--mono);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.hero h1{font-size:clamp(34px,6vw,58px)}
+.hero h1 .dev{color:var(--accent)}
+.hero p{max-width:62ch;margin:0;color:var(--muted)}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14.5px;color:var(--muted)}
+.meta b{color:var(--ink);font-weight:500}
+.start{justify-self:start;background:var(--ink);color:var(--bg);border:0;border-radius:999px;padding:10px 20px;cursor:pointer;font-weight:500}
+.part{margin-bottom:34px}
+.part-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px}
+.part-head .num{font-family:var(--display);font-size:30px;color:var(--gold)}
+.part-head h2{font-size:24px}
+.part-head span.sub{color:var(--muted);font-size:15px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.tile{display:grid;gap:6px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 16px 14px;cursor:pointer;transition:transform .15s,border-color .15s}
+.tile:hover{border-color:var(--accent);transform:translateY(-2px)}
+.tile .glyph{font-family:var(--display);font-size:30px;line-height:1;color:var(--accent)}
+.tile h3{font-size:19px}
+.tile p{margin:0;font-size:14.5px;color:var(--muted);line-height:1.45}
+.tile .ts{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.note{font-size:13.5px;color:var(--muted);max-width:70ch;border-top:1px solid var(--line);padding-top:14px}
+
+/* slide view */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;align-items:center;gap:10px;padding-block:12px;border-bottom:1px solid var(--line)}
+.bar .ghost{background:none;border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer;font-size:14.5px}
+.bar .ghost:hover{border-color:var(--accent)}
+.bar .ghost:disabled{opacity:.4;cursor:default}
+.bar .pos{margin-left:auto;font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.dots{display:flex;gap:5px;flex-wrap:wrap;padding-block:12px 0}
+.dots button{width:10px;height:10px;border-radius:50%;border:0;padding:0;background:var(--line);cursor:pointer}
+.dots button[aria-current="true"]{background:var(--accent)}
+.slide{padding-block:22px 10px;display:grid;gap:18px}
+.slide .kicker{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.slide h2{font-size:clamp(28px,4.6vw,44px)}
+.lede{font-size:19px;max-width:64ch;margin:0}
+.watch{font-family:var(--mono);font-size:12.5px;text-decoration:none;border:1px solid var(--accent);border-radius:999px;padding:3px 10px}
+.watch:hover{background:var(--accent-soft)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.cols > *{min-width:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.card h3{font-size:19px;margin-bottom:6px}
+.card p{margin:0 0 8px}
+.card p:last-child{margin-bottom:0}
+ul.pts{margin:0;padding-left:20px;display:grid;gap:6px}
+.quote{border-left:3px solid var(--gold);padding:4px 0 4px 14px;color:var(--muted);font-style:italic;max-width:64ch}
+.callout{background:var(--gold-soft);border-radius:12px;padding:14px 18px}
+.big{font-family:var(--display);font-size:clamp(34px,7vw,56px);line-height:1.1;color:var(--accent)}
+.tag{display:inline-block;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:6px;background:var(--accent-soft);color:var(--accent)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:16px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:500;color:var(--muted);font-size:14px}
+td.dev{font-size:24px;white-space:nowrap}
+
+/* ladder */
+.ladder{display:grid;gap:8px}
+.rung{display:grid;grid-template-columns:118px 1fr;gap:12px;align-items:center}
+.rung .lab{font-weight:500}
+.rung .lab small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+.rung .track{background:var(--line);border-radius:6px;height:30px;position:relative;overflow:hidden}
+.rung .fill{height:100%;background:var(--accent);border-radius:6px;display:flex;align-items:center;padding-left:10px;color:var(--bg);font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+.rung.hl .fill{background:var(--gold)}
+
+/* body map */
+.bodymap{display:grid;grid-template-columns:minmax(0,300px) 1fr;gap:18px;align-items:start}
+@media (max-width:640px){.bodymap{grid-template-columns:1fr}}
+.bodymap svg{width:100%;max-width:300px;height:auto;display:block;margin:0 auto}
+.bodymap .zone{cursor:pointer}
+.bodymap .zone .s{fill:var(--surface);stroke:var(--muted);stroke-width:2}
+.bodymap .zone .l{stroke:var(--muted);stroke-width:7;stroke-linecap:round;fill:none}
+.bodymap .zone:hover .s,.bodymap .zone.on .s{fill:var(--accent-soft);stroke:var(--accent)}
+.bodymap .zone:hover .l,.bodymap .zone.on .l{stroke:var(--accent)}
+.bodymap .dot{fill:var(--gold);stroke:var(--surface);stroke-width:2}
+.bodymap .zone.on .dot{fill:var(--accent)}
+.bodymap text{fill:var(--muted);font-family:var(--mono);font-size:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;cursor:pointer;font-size:14.5px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.letters{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:10px}
+.letter{background:var(--bg);border-radius:10px;padding:8px 10px}
+.letter .dev{font-size:30px;line-height:1.2;color:var(--accent);display:block}
+.letter span{font-size:14px;color:var(--muted)}
+
+/* experiment */
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{background:var(--surface);border:0;border-right:1px solid var(--line);padding:6px 12px;cursor:pointer;font-size:14.5px}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.lines{display:grid;gap:8px;margin-top:12px}
+.lrow{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.lrow > *{min-width:0}
+.lrow .what{font-size:14px;color:var(--muted)}
+.lrow .what b{display:block;color:var(--ink);font-weight:500}
+.lrow .row{font-family:var(--display);font-size:26px;letter-spacing:.06em;overflow-wrap:anywhere}
+.lrow.best{border-color:var(--gold);background:var(--gold-soft)}
+@media (max-width:520px){.lrow{grid-template-columns:1fr}}
+
+/* calculator */
+.calc{display:grid;gap:12px}
+.calc label{font-size:14.5px;color:var(--muted);display:grid;gap:4px}
+.calc input[type=range]{width:100%;accent-color:var(--accent)}
+.calc output{font-variant-numeric:tabular-nums}
+.spark{width:100%;height:80px;display:block}
+
+/* navarna */
+.mantra{display:flex;flex-wrap:wrap;gap:8px}
+.word{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;text-align:center;min-width:84px}
+.word .dev{font-size:26px;display:block}
+.word small{color:var(--muted);font-size:12.5px}
+.word.chg{border-color:var(--accent);background:var(--accent-soft)}
+.steps{counter-reset:s;display:grid;gap:10px;padding:0;margin:0;list-style:none}
+.steps li{counter-increment:s;display:grid;grid-template-columns:34px 1fr;gap:10px}
+.steps li::before{content:counter(s);font-family:var(--display);font-size:22px;color:var(--gold);line-height:1.3}
+.navfoot{display:flex;justify-content:space-between;gap:10px;padding-top:22px;margin-top:10px;border-top:1px solid var(--line)}
+.navfoot button{background:none;border:0;cursor:pointer;text-align:left;padding:0;max-width:48%}
+.navfoot button small{display:block;font-family:var(--mono);font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.navfoot button span{font-family:var(--display);font-size:19px}
+.navfoot button.next{text-align:right;margin-left:auto}
+/* logo + backdrop */
+.hero{position:relative;grid-template-columns:1fr auto;column-gap:28px}
+.hero > *:not(.logo){grid-column:1}
+.hero .logo{grid-column:2;grid-row:1 / span 5;align-self:center;width:clamp(150px,22vw,230px);height:auto;border-radius:50%;box-shadow:0 0 0 4px var(--haldi),0 0 0 8px var(--accent),0 10px 30px rgba(120,20,10,.35)}
+@media (max-width:640px){.hero{grid-template-columns:1fr}.hero .logo{grid-column:1;grid-row:auto;justify-self:center;width:150px;order:-1}}
+.wrap{position:relative;z-index:1}
+body::before{content:"";position:fixed;z-index:0;pointer-events:none;inset:auto 0 0 auto;width:min(70vw,560px);aspect-ratio:1;translate:22% 18%;background:url(img/logo.png) center/contain no-repeat;opacity:.09}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) body::before{opacity:.14}}
+:root[data-theme="dark"] body::before{opacity:.14}
+.bar{background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(4px)}
+/* no-script fallback: tiles are links, every topic is stacked below */
+a.tile,a.start{color:inherit;text-decoration:none}
+a.start{color:#FFF7E6}
+#all{display:grid;gap:8px;margin-top:20px}
+#all .allhead{font-size:30px;padding-top:20px;border-top:6px solid var(--saffron)}
+#all .slide{border-top:1px solid var(--line);padding-top:26px}
+#all .backtop{margin:0;font-weight:500}
+#all .fallback{display:grid;gap:12px}
+/* class screenshots */
+.shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.shot{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:grid}
+.shot button{border:0;padding:0;background:none;cursor:zoom-in;display:block}
+.shot img{display:block;width:100%;aspect-ratio:16/10;object-fit:contain;background:#111}
+.shot figcaption{padding:10px 14px 12px;font-size:14.5px;display:grid;gap:6px}
+.shot figcaption .watch{justify-self:start}
+.lightbox{position:fixed;inset:0;z-index:20;background:rgba(20,4,6,.88);display:grid;place-items:center;padding:16px;cursor:zoom-out}
+.lightbox img{max-width:100%;max-height:82vh;border-radius:8px}
+.lightbox p{color:#FFF0D6;margin:10px 0 0;text-align:center;max-width:70ch}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (prefers-reduced-motion:no-preference){.slide{animation:in .25s ease-out}@keyframes in{from{transform:translateY(6px)}to{transform:none}}}
+</style>
+
+<div class="wrap">
+  <section id="hub">
+    <header class="hero">
+      <img class="logo" src="img/logo.png" alt="Shri Yantra mandala logo">
+      <div class="eyebrow">ShreeMantrabja · Mantra Chikitsa · Day 12 · Dr. Gaurav Shukla</div>
+      <h1>Building <span class="dev">बीज मंत्र</span> from the body up</h1>
+      <p>A two-hour class on where beej mantras come from, how Sanskrit letters map onto the body, a hands-on writing experiment, and the group project to rebuild Durga Saptashati with new beej mantras before Navratri.</p>
+      <div class="meta"><span><b>Taught by</b> Dr. Gaurav Shukla</span><span><b>Length</b> about 2 hours</span><span><b>Language</b> Hindi with English</span><span><b>Source</b> <a href="https://www.youtube.com/watch?v=8ILMOkvTQkA" target="_blank" rel="noopener">YouTube video</a></span></div>
+      <button class="start" id="startBtn">Start from the beginning →</button>
+    </header>
+    <div id="parts"></div>
+    <p class="note">Made from the video's auto-generated Hindi captions. Sanskrit letter names are sometimes misheard in captions, so some letters below are written the way the class normally uses them (for example ष of षट्कोण, क्ष of क्षत्रिय). The ideas and results are Dr. Gaurav Shukla's own model as presented in class. Each slide links to that moment in the video so you can check it.</p>
+  </section>
+
+  <section id="deck" hidden>
+    <div class="bar">
+      <button class="ghost" id="toHub">← All topics</button>
+      <button class="ghost" id="prev" aria-label="Previous topic">‹</button>
+      <button class="ghost" id="next" aria-label="Next topic">›</button>
+      <span class="pos" id="pos"></span>
+    </div>
+    <div class="dots" id="dots"></div>
+    <article class="slide" id="slide" tabindex="-1"></article>
+    <div class="navfoot" id="navfoot"></div>
+  </section>
+</div>
+
+<script>
+document.getElementById("all")?.remove();document.documentElement.classList.add("js");
+const VID="https://www.youtube.com/watch?v=8ILMOkvTQkA&t=";
+const toSec=t=>t.split(":").reduce((a,b)=>a*60+ +b,0);
+const watch=t=>`<a class="watch" href="${VID}${toSec(t)}s" target="_blank" rel="noopener">▶ ${t}</a>`;
+const shot=(src,t,cap)=>`<figure class="shot"><button type="button" data-zoom="img/${src}.jpg" data-cap="${cap.replace(/<[^>]+>/g,"")} (${t})" aria-label="Enlarge screenshot at ${t}"><img src="img/${src}.jpg" data-k="${src}" alt="Class screenshot at ${t}: ${cap.replace(/<[^>]+>/g,"")}" loading="lazy"></button><figcaption><span>${cap}</span>${watch(t)}</figcaption></figure>`;
+
+const PARTS=[
+ {n:"I",title:"Foundations",sub:"Why some sounds don't perish"},
+ {n:"II",title:"The body as an alphabet",sub:"Nyasa, the experiment, the Soul Seat"},
+ {n:"III",title:"Making beej mantras",sub:"Syntax, daily practice, corrections"},
+ {n:"IV",title:"The project and the group",sub:"What everyone does next"}
+];
+
+const S=[
+/* ---------- I ---------- */
+{id:"akshar",part:0,glyph:"अक्षर",title:"Akshar and Kshar",blurb:"Perishable and non-perishable sound, and where divine names fit.",ts:"12:25",
+html:()=>`
+<p class="lede">The theory starts with two words. <b>Kshar (क्षर)</b> means perishable. <b>Akshar (अक्षर)</b> means non-perishable. Some sounds belong to the second group, and Dr. Gaurav Shukla asks why.</p>
+<div class="cols">
+ <div class="card"><span class="tag">Kshar · perishable</span><h3>Selfish thoughts</h3><p>Thoughts centred on the self produce perishable thought. They fade.</p></div>
+ <div class="card"><span class="tag">Akshar · non-perishable</span><h3>Selfless thoughts</h3><p>Selfless thoughts last. The clearest example is thought of the Divine: the names of devi and devta.</p></div>
+</div>
+<div class="callout"><b>Why we don't simply know how it works.</b> In Dr. Gaurav Shukla's words, the Divine has kept its workings hidden. If we found a "super power", we would use it for everything. That is what people already do with mantras: asking them to heal illness, bring wealth, and so on.</div>
+<p class="quote">"There is a domain which says there is a perishable thought and a non-perishable thought."</p>
+<div class="shots">
+ ${shot("board-akshar","18:00","The whiteboard: <b class=\"dev\">अक्षर</b> (non-perishable) circled beside <b class=\"dev\">क्षर</b> (perishable). Selfless thought leads to the Divine and does not perish. Selfish thought perishes.")}
+</div>`},
+
+{id:"ladder",part:0,glyph:"१–२०+",title:"The mantra ladder",blurb:"Pind, Kartari, Beej, Mantra, Mala: classed by letter count.",ts:"14:48",
+html:()=>{
+ const r=[["Pind mantra","पिण्ड",1,"1 akshar"],["Kartari mantra","कर्तरी",2,"2 akshar"],["Beej mantra","बीज",9,"3 to 9 akshar"],["Mantra","मंत्र",20,"10 to 20 akshar"],["Mala mantra","माला",30,"more than 20"]];
+ return `<p class="lede">Between the perishable and the non-perishable, the class draws a ladder. A mantra's type depends on how many akshar (syllables) it has.</p>
+ <div class="ladder">${r.map((x,i)=>`<div class="rung${i==4?" hl":""}"><div class="lab">${x[0]}<small class="dev">${x[1]}</small></div><div class="track"><div class="fill" style="width:${Math.max(12,x[2]/30*100)}%">${x[3]}</div></div></div>`).join("")}</div>
+ <div class="callout"><b>Durga Saptashati is a mala mantra.</b> It contains far more than 20 akshar. Which of those akshar carry the power is not documented. That gap is what the rest of the class tries to answer.</div>
+ <div class="shots">${shot("board-akshar","18:00","The ladder as written on the board: 1 अक्षर = पिण्ड मंत्र, 2 = कर्तरी मंत्र, 3–9 = बीज मंत्र, 10–20 = मंत्र, 20+ = माला मंत्र. An arrow points from माला मंत्र to मन्त्र वीर्य.")}</div>`}},
+
+{id:"virya",part:0,glyph:"ष क्ष",title:"Mantravirya: the two seed letters",blurb:"Only two letters carry the 'seed' property, according to Dr. Gaurav Shukla.",ts:"15:45",
+html:()=>`
+<p class="lede">The Tantraraj uses the term <b>mantravirya</b>, the seed or potency of a mantra. In Dr. Gaurav Shukla's model only two letters carry that property.</p>
+<div class="cols">
+ <div class="card"><span class="big">ष</span><h3>ष of षट्कोण (shatkon)</h3><p>Stands for <b>cellular reproduction</b>, which the class calls the body's most important function.</p></div>
+ <div class="card"><span class="big">क्ष</span><h3>क्ष of क्षत्रिय (kshatriya)</h3><p>Stands for the <b>power to carry out</b> cellular reproduction.</p></div>
+</div>
+<div class="card"><h3>How they build up</h3>
+<ul class="pts">
+ <li><b>One-letter (pind) mantra:</b> only ष or only क्ष.</li>
+ <li><b>Two-letter:</b> one of them joined to each of the 36 consonants, for example half-ष + क, half-ष + ख, or क्ष + क.</li>
+ <li><b>Three or more:</b> both together, for example half-ष + half-क्ष + क.</li>
+</ul></div>
+<p class="quote">"Because this is undocumented, you always have to give it an assumption, and then you can start the model."</p>
+<div class="shots">
+ ${shot("board-akshar","18:00","On the board: <b class=\"dev\">मन्त्र वीर्य</b>, the “perpetual term for seed”. It branches into <b class=\"dev\">ष</b> (cellular reproduction) and <b class=\"dev\">क्ष</b> (power to do cellular reproduction). <b class=\"dev\">ष/क्ष</b> on the left marks the one-letter pind mantra.")}
+ ${shot("board-cells","22:14","The two-letter step written out: ष or क्ष joined to क (ष्क, क्ष्क), and so on through the consonants. <i>Time estimated from the PC clock in the photo.</i>")}
+</div>`},
+
+{id:"cells",part:0,glyph:"ब्रह्माण्ड",title:"Why cellular reproduction comes first",blurb:"Breath, the zygote, the cosmic egg, and the mountains with wings.",ts:"16:43",
+html:()=>`
+<p class="lede">Dr. Gaurav Shukla asks the class: what is the single most important body part or function? Students answer breath, then the brain. His answer is <b>cellular reproduction</b>, because nothing else can happen before it.</p>
+<div class="cols">
+ <div class="card"><h3>The breath argument</h3><p>Breath arrives at birth and stops at death, so it seems to carry a divine link. But lungs must be formed before anyone can breathe. Cells were already dividing in the womb, from sperm and egg, before the body existed.</p></div>
+ <div class="card"><h3>Not only humans</h3><p>The same process, spermatozoa joining with an egg to form a cell, runs through all creation, even at the celestial level. That is why the universe itself is called <span class="dev">ब्रह्माण्ड</span>, Brahmand: the cosmic egg.</p></div>
+ <div class="card"><h3>Reading metaphors</h3><p>A Vedic line says mountains once had wings, and Indra cut them off. Dr. Gaurav Shukla reads this as volcanic eruptions that threw molten rock into the sky to form new peaks. Indra "cutting the wings" means the eruptions stopping.</p></div>
+</div>
+<div class="callout">The point: old texts are meaningful, but because they speak in metaphors we often fail to decode them correctly.</div>
+<div class="shots">
+ ${shot("board-cells","22:14","The board at this point. Breath leads to Divine and <b class=\"dev\">आत्मा</b> (soul), but body creation comes first. Sperm and egg (the two circles) form the cell and zygote, labelled spermatozoa and “celestial domain”. <i>Time estimated from the PC clock in the photo.</i>")}
+</div>`},
+
+/* ---------- II ---------- */
+{id:"nyasa",part:1,glyph:"न्यास",title:"Nyasa: the letters in your body",blurb:"Tap a body region to see its Sanskrit letters.",ts:"25:05",
+html:()=>`
+<p class="lede">In <b>Nyasa</b>, the Sanskrit alphabet is placed on the body. It's what a pandit does during a puja when he asks you to touch your head, then your eyes, and so on. Dr. Gaurav Shukla sees this as a scientific process: touching these points while naming the Divine lifts the vital organs.</p>
+<div class="bodymap">
+ <svg viewBox="0 0 300 430" role="img" aria-label="Body figure with clickable regions">
+  <g class="zone" data-z="head"><circle class="s" cx="150" cy="58" r="38"/><text x="150" y="16" text-anchor="middle">HEAD</text></g>
+  <g class="zone" data-z="soul"><path class="s" d="M150 52 l7 9 -7 9 -7 -9z"/></g>
+  <g class="zone" data-z="torso"><rect class="s" x="112" y="112" width="76" height="150" rx="22"/></g>
+  <g class="zone" data-z="rh"><polyline class="l" points="112,128 72,186 58,252"/><circle class="dot" cx="112" cy="128" r="6"/><circle class="dot" cx="72" cy="186" r="6"/><circle class="dot" cx="58" cy="252" r="6"/><circle class="dot" cx="54" cy="270" r="5"/><circle class="dot" cx="51" cy="286" r="5"/><text x="40" y="160" text-anchor="middle">R HAND</text></g>
+  <g class="zone" data-z="lh"><polyline class="l" points="188,128 228,186 242,252"/><circle class="dot" cx="188" cy="128" r="6"/><circle class="dot" cx="228" cy="186" r="6"/><circle class="dot" cx="242" cy="252" r="6"/><circle class="dot" cx="246" cy="270" r="5"/><circle class="dot" cx="249" cy="286" r="5"/><text x="260" y="160" text-anchor="middle">L HAND</text></g>
+  <g class="zone" data-z="rf"><polyline class="l" points="134,262 124,338 118,402"/><circle class="dot" cx="134" cy="266" r="6"/><circle class="dot" cx="124" cy="338" r="6"/><circle class="dot" cx="118" cy="402" r="6"/><circle class="dot" cx="106" cy="410" r="5"/><circle class="dot" cx="94" cy="414" r="5"/><text x="88" y="350" text-anchor="middle">R FOOT</text></g>
+  <g class="zone" data-z="lf"><polyline class="l" points="166,262 176,338 182,402"/><circle class="dot" cx="166" cy="266" r="6"/><circle class="dot" cx="176" cy="338" r="6"/><circle class="dot" cx="182" cy="402" r="6"/><circle class="dot" cx="194" cy="410" r="5"/><circle class="dot" cx="206" cy="414" r="5"/><text x="212" y="350" text-anchor="middle">L FOOT</text></g>
+  <g class="zone" data-z="chakra"><circle class="dot" cx="150" cy="104" r="7"/><circle class="dot" cx="150" cy="146" r="7"/><circle class="dot" cx="150" cy="196" r="7"/><circle class="dot" cx="150" cy="226" r="7"/><circle class="dot" cx="150" cy="254" r="7"/></g>
+ </svg>
+ <div><div class="chips" id="zchips"></div><div id="zinfo"></div></div>
+</div>
+<p class="note">The figure faces you, so the right hand appears on your left. Corrections to the shared slide were made in class at ${watch("49:21")}.</p>`,
+init:initBody},
+
+{id:"experiment",part:1,glyph:"क ष्क",title:"The five-line experiment",blurb:"Write the same letters five ways and notice which line feels strongest.",ts:"31:44",
+html:()=>`
+<p class="lede">Ten minutes of silent practice. Pick a limb, write its five letters on paper in five lines, adding a different prefix each time. After each line, notice how much energy you feel in that limb. Note it down.</p>
+<div class="seg" id="limbs"></div>
+<div class="lines" id="lines"></div>
+<div class="cols">
+ <div class="card"><h3>What the class reported</h3><p>Line 5, with half-ल added, felt strongest for the students who shared feedback ${watch("47:43")}. Dr. Gaurav Shukla says the same thing happened when he first did this on his own shoulder.</p></div>
+ <div class="card"><h3>Keep it small</h3><p>Only experiment with the 20 limb letters (both hands, both feet). You do not need to try every letter yet.</p></div>
+</div>`,
+init:initExp},
+
+{id:"soul",part:1,glyph:"◆",title:"The Soul Seat",blurb:"The point where mantra energy is placed and then spreads through the body.",ts:"1:15:10",
+html:()=>`
+<p class="lede">After writing a mantra and lifting its energy, you place it in the <b>Soul Seat</b>. From there it spreads through the whole body.</p>
+<div class="cols">
+ <div class="card"><h3>Where it is</h3><ul class="pts"><li>Behind the nose</li><li>Above the palate (तालु)</li><li>Below the Brahmarandhra (crown opening)</li><li>Midway between the two ears</li></ul></div>
+ <div class="card"><h3>What connects to it</h3><ul class="pts"><li><b>Five brain parts:</b> frontal lobe (forehead), temporal lobes (ears), occipital lobe (where the shikha sits), parietal lobe (centre, earth element), and cerebrospinal fluid (water element)</li><li>Eyes, nose, tongue, lips and throat</li><li>The spine, and through its nerves every body part down to the tailbone</li></ul></div>
+</div>
+<div class="callout"><b>Is it the hippocampus?</b> Dr. Patra asked this ${watch("1:38:31")}. Dr. Gaurav Shukla said no. It can't be mapped in anatomy. You can picture it as a point among the hippocampus, hypothalamus, pineal and pituitary.</div>
+<p>Dr. Gaurav Shukla's reasoning: if every connection meets here, the body's "driver" must sit here too. So he pictured the combined ष and क्ष seed at this point.</p>
+<h3 style="font-size:22px">On the class slide</h3>
+<div class="shots">
+ ${shot("soulseat-1","1:17:07","The Soul Seat slide: Shiva and Shakti beside a chart of the nervous system. The point behind the nose fans out to the brain, the senses and down the spine to every organ.")}
+ ${shot("soulseat-2","1:18:01","Annotated in class: <b>Soul seat · Core · Driver</b>. Shakti is marked <b class=\"dev\">ष</b> and Shiva <b class=\"dev\">क्ष</b>, and the two seed letters are pictured together at the Soul Seat. The loop shows the whole body connected through the spine.")}
+</div>`},
+
+/* ---------- III ---------- */
+{id:"syntax",part:2,glyph:"लक्ष",title:"Beej mantra syntax and the 'Laksh' prefix",blurb:"One full letter, the rest half, and why every mantra starts with Laksh.",ts:"1:19:48",
+html:()=>`
+<p class="lede">Dr. Gaurav Shukla's rule: <b>a beej mantra is built on akshar, and only one letter in it is written in full. Every other letter is a half form.</b> He calls this the beej mantra syntax.</p>
+<div class="cols">
+ <div class="card"><h3>Seed and tree</h3><p>Compare two editions of Durga Saptashati and you'll find a name in one and a beej mantra in the other. The difference is gross and subtle (स्थूल and सूक्ष्म): the name is the whole tree, the beej is its seed. Using a single full letter removes the duplication.</p></div>
+ <div class="card"><h3>Why the prefix "Laksh"</h3><p>The prefix is half-ल + half-ष + half-क्ष. All of Lakshmi's letters sit in the <b>Muladhara chakra</b> ${watch("1:22:47")}. Adding Laksh to any deity's beej connects it to Mahalakshmi by default: "She who gave the universe its lakshya (purpose) also put lakshya in all its functions."</p></div>
+</div>
+<div class="card"><h3>How to build one from a name</h3>
+<ol class="steps">
+ <li><div><b>Pick a name</b> from your allotted list, for example पुत्र (son) or राजा (king). These were only examples ${watch("3:52")}.</div></li>
+ <li><div><b>Break it into letters, turning vowel marks into letters too.</b> In the worked examples, the उ mark in पुत्र is written as <span class="dev">व</span>, so पुत्र gives <span class="dev">प व त र</span>. The आ mark in राजा is written as <span class="dev">ह</span>, so राजा gives <span class="dev">र ह ज</span>.</div></li>
+ <li><div><b>Join them to Lakshmi.</b> Start from <span class="dev">लक्ष्मीः</span> (Lakshmi with visarga), then join the name's letters as half forms, keeping just one letter full. The result is a single cluster, as written on the screen below.</div></li>
+ <li><div><b>Write it down</b> and observe its energy. Dr. Gaurav Shukla will later share his own version for comparison and explain why his letter order differs, for example ह व य versus य व ह ${watch("1:29:50")}.</div></li>
+</ol></div>
+<h3 style="font-size:22px">Worked examples from class</h3>
+<div class="shots">
+ ${shot("putra","4:55","<b class=\"dev\">लक्ष्मीः + पुत्र</b>. पुत्र is broken into <b class=\"dev\">प व त र</b> and joined to Lakshmi to form one beej cluster.")}
+ ${shot("raja","5:42","<b class=\"dev\">राजा</b> is broken into <b class=\"dev\">र ह ज</b> and combined with Lakshmi the same way. Both handwritten beej forms are shown side by side.")}
+</div>
+<div class="callout"><b>Why everyone becomes one family.</b> Trace mothers back far enough and everyone becomes siblings, at an elemental, Muladhara level. With Laksh as the prefix, Dr. Gaurav Shukla says he addresses all of you as children of the Divine Mother. That's the basis for mass healing.</div>`},
+
+{id:"shreem",part:2,glyph:"श्रीं",title:"Shreem, Laksham and daily writing",blurb:"What each part of Shreem does, who writes what, and how the energy adds up.",ts:"1:13:25",
+html:()=>`
+<p class="lede">For everyday practice the class has one benchmark: <b>men write श्रीं (Shreem), women write लक्षं (Laksham)</b>. Anyone can also try Laksham to raise energy.</p>
+<div class="cols">
+ <div class="card"><h3>Why the split</h3><p class="quote" style="margin:0">"Women need purpose; men need intelligence."</p><p style="margin-top:8px">${watch("1:41:20")}</p></div>
+ <div class="card"><h3>Reading श्रीं</h3><ul class="pts"><li><b>श</b>: the seed sound</li><li><b>र</b>: water element. Moving it up and down gives "perfect dilution"</li><li><b>ई mark</b>: fire, so it adds energy</li><li><b>Anusvara (ं)</b>: delivers everything into the Soul Seat</li></ul></div>
+ <div class="card"><h3>The breath habit</h3><p>For seven years Dr. Gaurav Shukla has breathed in Shreem and breathed out Hreem. Doing the shoulder experiment with it produced "a huge amount of energy."</p></div>
+</div>
+<div class="card calc"><h3>How the energy accumulates</h3>
+<p style="margin:0">Each day you lift energy from today's sheets and every earlier sheet. So 3,000 a day is 6,000 on day 2, 9,000 on day 3, and about 10 lakh by the end of a year. The practice is designed to run for one year.</p>
+<label for="cDaily">Written per day: <output id="oDaily"></output></label><input type="range" id="cDaily" min="500" max="5000" step="500" value="3000">
+<label for="cDays">Days of practice: <output id="oDays"></output></label><input type="range" id="cDays" min="1" max="360" value="360">
+<div><span class="big" id="cTotal"></span> <span style="color:var(--muted)">mantras' worth of energy lifted together</span></div>
+<svg class="spark" id="spark" viewBox="0 0 300 80" preserveAspectRatio="none" aria-hidden="true"></svg>
+</div>
+<div class="callout"><b>The inverter analogy.</b> Your house inverter can't run the fridge and AC because the battery never charges enough. Daily writing builds a bigger charging station, so the body's "heavy devices" can finally run. Dr. Gaurav Shukla says ageing slows as these powers rise.</div>`,
+init:initCalc},
+
+{id:"navarna",part:2,glyph:"ऐं ह्रीं",title:"Correcting the Navarna mantra",blurb:"How changing three seeds in a familiar mantra changed the result, in Dr. Gaurav Shukla's story.",ts:"54:27",
+html:()=>`
+<p class="lede">Once Dr. Gaurav Shukla had the "source code", he looked again at familiar beej mantras. He found the ष and क्ष seeds were missing from many of them, including the base mantra of Durga Saptashati.</p>
+<h3 style="font-size:20px">Traditional</h3>
+<div class="mantra">${[["ऐं","Aim"],["ह्रीं","Hreem"],["क्लीं","Kleem"],["चामुण्डायै","Chamundayai"],["विच्चे","Vichche"]].map(w=>`<div class="word"><span class="dev">${w[0]}</span><small>${w[1]}</small></div>`).join("")}</div>
+<h3 style="font-size:20px">Dr. Gaurav Shukla's version</h3>
+<div class="mantra">${[["Mahasaraswati beej","replaces ऐं",1],["Mahalakshmi beej","replaces ह्रीं",1],["Mahakali / Mahasati beej","replaces क्लीं",1],["चामुण्डायै","kept",0],["व्री + अंचे","replaces विच्चे",1]].map(w=>`<div class="word${w[2]?" chg":""}"><span class="${w[0].match(/[ऀ-ॿ]/)?"dev":""}" style="${w[0].match(/[ऀ-ॿ]/)?"":"font-size:16px;font-weight:500"}">${w[0]}</span><small>${w[1]}</small></div>`).join("")}</div>
+<div class="card"><h3>The Srisailam story</h3><p>Near the Mallikarjuna Jyotirlinga at Srisailam, Dr. Gaurav Shukla asked to perform a havan at the temple's yajnashala. When he shared his corrected structure, the woman there told him she had done the traditional Navarna mantra one crore (10 million) times to receive darshan. In his telling, the small correction gave him darshan.</p></div>
+<div class="callout"><b>The lesson he draws:</b> when you decode the source code, the effort you need goes down.</div>`},
+
+/* ---------- IV ---------- */
+{id:"project",part:3,glyph:"७२९",title:"The Mahalakshmi Durga Saptashati",blurb:"Two phases, 25,196 data points, and a target of 729 mantras.",ts:"1:32",
+html:()=>`
+<p class="lede">The group will rebuild Durga Saptashati, chapter by chapter, as a <b>Mahalakshmi Durga Saptashati</b> with one consistent beej mantra syntax.</p>
+<div class="cols">
+ <div class="card"><span class="tag">Phase 1</span><h3>Beej mantras</h3><p>Turn every relevant name into a beej mantra and put them in chapter order.</p></div>
+ <div class="card"><span class="tag">Phase 2</span><h3>Shloka correction</h3><p>Correct the shlokas, which completes the new edition.</p></div>
+</div>
+<div class="shots">${shot("phases","6:56","The plan as written in class: बीज मंत्र for Durga Saptashati, chapter by chapter. <b>I: Beej</b> and <b>II: Shloka</b> together give the <b>Mahalakshmi Durga Saptashati</b>, built on one syntax. The worked examples (लक्ष्मीः + पुत्र, राजा) are on the right.")}</div>
+<div class="card"><h3>How the name list was built</h3>
+<ol class="steps">
+ <li><div>The full Durga Saptashati went into ChatGPT, which was asked to find every "name" chapter by chapter, including Kavach and Keelak. A name here means any object, property, action or relationship.</div></li>
+ <li><div>Devi Bhagavat Volume 1 and Part 2 were processed the same way.</div></li>
+ <li><div>The three lists were merged: <b>25,196</b> data points and about 1,800 unique names. The shared sheet has <b>1,451</b> unique rows.</div></li>
+</ol></div>
+<h3 style="font-size:22px">Inside the names workbook</h3>
+<div class="shots">
+ ${shot("sheet-about","2:43","<b>Devi Bhagavata Volume 2, chapter-wise names.</b> It covers Skandhas 7 to 12, all 165 chapters. A “name” includes people, deities, places, objects, qualities, feelings, states, actions and relationships. The 1,008 Gayatri names from Skandha 12, chapter 6 are kept in their own table.")}
+ ${shot("sheet-names","3:03","The <b>सभी नाम और संज्ञाएँ</b> (all names) sheet. Column D lists each name (रुद्र, विष्णु, ब्रह्मा, प्रजापति, सूर्य, चन्द्रमा) with its Skandha, chapter, chapter topic and category.")}
+ ${shot("sheet-relations","3:51","The same sheet further down: वरदान and रूप are classed as action/process. पिता, पुत्र, राजा and प्रजा are relationship names, the rows used for the worked examples.")}
+</div>
+<div class="cols">
+ <div class="card"><div class="big">729</div><p>mantras to write, in the "ॐ ऐं श्रीं नमः" style of the beej-mantra Saptashati, so that 729 shaktis awaken in the body.</p></div>
+ <div class="card"><div class="big">11th</div><p>Navratri starts. Every night from 9 to 10 pm there will be a guided meditation using the new mantras. Everyone observes their energy body before and after, and their health markers.</p></div>
+</div>
+<p class="note">Dr. Gaurav Shukla says the existing beej-mantra Durga Saptashati discussed in an earlier class has only three to five accurate beej mantras.</p>`},
+
+{id:"task",part:3,glyph:"५०",title:"Your assignment: 50 beej mantras",blurb:"What to do, how to share it, and the deadline.",ts:"1:50:52",
+html:()=>`
+<p class="lede">Each person takes a slice of the unique-names sheet and writes <b>50 beej mantras</b>, each starting with the Laksh prefix.</p>
+<ol class="steps">
+ <li><div><b>Pick up your list.</b> Megha ji shares the Excel sheet in the group. Assuming about 25 people actually do the work, that's roughly 58 names each.</div></li>
+ <li><div><b>Write 50 beej mantras by hand</b>, using the syntax: Laksh prefix first, one full letter, the rest half.</div></li>
+ <li><div><b>Take a photo and post it in the group</b>, with your allotted range written at the top ("from row X to row Y").</div></li>
+ <li><div><b>Want to do more?</b> Mark the extra range you finished in the Excel file so nobody repeats it.</div></li>
+ <li><div><b>Level 4 members validate</b> the mantras in the 9 to 10 pm guided meditation before the 11th.</div></li>
+</ol>
+<div class="cols">
+ <div class="card"><div class="big">10th</div><p>Deadline. Finish all 50 in one day and Dr. Gaurav Shukla will drop everything to complete the rest the next day: "magic and miracle."</p></div>
+ <div class="card"><h3>Who to ask</h3><p>Process owners are <b>Lakshmi Chinni ma'am</b> and <b>Kalpana ma'am</b>. They can also help with scanning, lifting and placing the energy of the mantras.</p></div>
+</div>
+<div class="callout"><b>The pond of milk.</b> A king dreamed that whoever poured a pot of milk into a pond would have their wish granted. Next morning the pond held only water, because everyone assumed someone else had poured. "Don't wait for the other person's pot of milk."</div>`},
+
+{id:"collective",part:3,glyph:"पिण्ड",title:"Pind daan and collective energy",blurb:"Yesterday's shared ritual, and how group meditation will work.",ts:"1:31:21",
+html:()=>`
+<p class="lede">On Ekadashi during Pitru Paksha, a pandit performed pind daan while Dr. Gaurav Shukla recited, in Meerut, on behalf of everyone in the class. He offered three pinds for the group's ancestors with milk, honey and thread, and the ancestors received the merit of the 7th chapter.</p>
+<div class="cols">
+ <div class="card"><h3>What people felt</h3><ul class="pts"><li>Gratitude</li><li>Peace and calm</li><li>Feeling as if they had done it themselves</li><li>Deep, easy sleep that night</li></ul><p style="margin-top:8px;color:var(--muted)">Dr. Gaurav Shukla's real question: did you feel energy rise in your energy body?</p></div>
+ <div class="card"><h3>Next meditations</h3><p>Plot dots on a map for where each participant sits, for example the USA and Odisha. Draw a radius around them, and send the energy to every spirit inside it.</p></div>
+ <div class="card"><h3>Observe your spine</h3><p>The same check applies to the eclipse practice: offer almonds, mishri and coconut into flowing water. Before and after, notice your backbone. Stress turns to ease, shoulders relax and the head goes calm.</p></div>
+</div>
+<div class="callout"><b>The Endgame image.</b> In the Marvel film, half of everyone vanishes. Picture the spirits who were waiting in line for energy toward salvation the same way: they got what they needed, left the line, and blessed you on the way out.</div>`},
+
+{id:"bigger",part:3,glyph:"६४",title:"Dr. Gaurav Shukla's wider view",blurb:"Sandipani's 64 days, the missing vowels, and a 14-year journey.",ts:"57:26",
+html:()=>`
+<div class="cols">
+ <div class="card"><h3>Teachers and mothers are undervalued</h3><p>Rishi Sandipani taught Krishna and Balarama all 64 arts in 64 days. The usual reading is "he was God, so it was easy." Dr. Gaurav Shukla reads it as proof of how phenomenal the guru was. He says mothers' contributions are downplayed in the same way.</p></div>
+ <div class="card"><h3>The vowel argument</h3><p>English is taught with 5 vowels. Singapore teaches 13, counting the diphthongs. Sanskrit has 16. Many Indian mother tongues lost ऋ ॠ ऌ ॡ and ळ as vowels. Dr. Gaurav Shukla sees this as a deliberate weakening of language. He believes using the full set improves health and wealth.</p></div>
+ <div class="card"><h3>The journey (since 2011–12)</h3><p>Dr. Gaurav Shukla and Aarti, who has a PhD and worked with depression and children's learning, started with gaps in school content. They moved on to fingerprint analysis and multiple intelligences, including an MIT paper's "self-restraint" and "spirituality" intelligences. Then came Reiki and pranic healing, and finally conversations with their own chakras. It took 14 years without textual support.</p></div>
+</div>
+<p class="quote">"If we had been taught this as children and lifted this energy then, how healthy and wealthy life would be."</p>`},
+
+{id:"practice",part:3,glyph:"२′",title:"Practice, questions and timing",blurb:"How to ask questions, when class runs, and the healer's benchmark.",ts:"1:44:19",
+html:()=>`
+<div class="cols">
+ <div class="card"><h3>1-minute diagnosis, 2-minute healing</h3><p>That's the group's motto. Within two months everyone should be able to sense a problem in a minute and heal in two. Keep practising <b>thumb gazing</b> and <b>aura reading</b>. Experienced members like Maninder ji, Kalpana ma'am and Shashi ma'am get accurate results in a minute or two through long practice.</p></div>
+ <div class="card"><h3>Parking questions</h3><p>Don't raise your hand for every question the moment it comes. Write it down, post it in the group, and let course members answer if it's already been covered. Fresh questions get answered next class. That way the important part of class doesn't get lost to a queue of questions.</p></div>
+ <div class="card"><h3>Class timing stays at 4:00 pm</h3><p>Class streams to people in many countries and time zones, so the time won't change. If it doesn't suit you, watch the recording, which goes up the same night ${watch("1:47:04")}.</p></div>
+</div>
+<div class="card"><h3>Getting help</h3><ul class="pts">
+ <li><b>Energy lifting and placing:</b> Lakshmi Chinni ma'am and Kalpana ma'am, plus Maninder ji and Neha ji</li>
+ <li><b>Extra practice sessions:</b> Namrata Dwivedi ji (two days a week) and Anshu ji (30 to 60 minutes a day). Ask in the group and they'll set up a Zoom call.</li>
+ <li><b>In the USA:</b> ask to join the Shreem USA group</li>
+ <li><b>New to the course:</b> start with the shared PPT and the earlier recordings</li>
+ <li>A tech platform for non-technical members is planned for Diwali.</li>
+</ul></div>`}
+];
+
+/* ---------- body map data ---------- */
+const ZONES={
+ head:{name:"Head: 16 vowels",letters:[["अ","crown, where the shikha sits"],["आ","face"],["इ ई","eyes"],["ए","right temple"],["ऐ","left temple"],["अं","nasal cavity, where the nose meets the skull"]],note:"The 16 vowels (अ to अः) sit in the head. The remaining vowels follow the class slide, which Dr. Gaurav Shukla confirmed in class. ए and ऐ (temples) and अं (nasal cavity) were his corrections."},
+ rh:{name:"Right hand",letters:[["क","shoulder"],["ख","elbow"],["ग","wrist"],["घ","finger joints"],["ङ","between the finger joints"]],note:"Dr. Gaurav Shukla's first experiment was on the right shoulder (क)."},
+ lh:{name:"Left hand",letters:[["च","shoulder"],["छ","elbow"],["ज","wrist"],["झ","finger joints"],["ञ","between the finger joints"]],note:"Same five joints as the right hand."},
+ rf:{name:"Right foot",letters:[["ट",""],["ठ",""],["ड",""],["ढ",""],["ण",""]],note:"Five joints of the right leg and foot, in order."},
+ lf:{name:"Left foot",letters:[["त",""],["थ",""],["द",""],["ध",""],["न",""]],note:"Five joints of the left leg and foot, in order. Together the four limbs give 20 letters, the ones used in the experiment."},
+ torso:{name:"Trunk and mind",letters:[["प","back"],["फ","pancreas"],["ब","navel"],["भ","buddhi (intellect)"],["म","man (mind)"]],note:"The प group of consonants."},
+ chakra:{name:"Chakras",letters:[["ह","throat chakra"],["य","heart chakra"],["व","navel chakra (as said in class)"],["र","swadhishthan"],["ल","muladhara"]],note:"Writing ह य व र ल energises the five gross elements. After that, ह व ल श स ळ क्ष raise the power of cellular reproduction and the Soul Seat."},
+ soul:{name:"Soul Seat",letters:[["◆","behind the nose, above the palate, between the ears"]],note:"Where mantra energy is placed so it spreads through the body. See the Soul Seat slide."}
+};
+function initBody(root){
+ const chips=root.querySelector("#zchips"),info=root.querySelector("#zinfo");
+ const keys=["head","rh","lh","rf","lf","torso","chakra","soul"];
+ chips.innerHTML=keys.map(k=>`<button class="chip" data-z="${k}" aria-pressed="false">${ZONES[k].name.split(":")[0]}</button>`).join("");
+ const pick=k=>{
+  const z=ZONES[k];
+  chips.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.z===k));
+  root.querySelectorAll(".zone").forEach(g=>g.classList.toggle("on",g.dataset.z===k));
+  info.innerHTML=`<h3 style="font-size:22px">${z.name}</h3><div class="letters">${z.letters.map(l=>`<div class="letter"><span class="dev">${l[0]}</span><span>${l[1]||"&nbsp;"}</span></div>`).join("")}</div><p style="color:var(--muted);font-size:15px;margin-top:10px">${z.note}</p>`;
+ };
+ chips.addEventListener("click",e=>{const b=e.target.closest(".chip");if(b)pick(b.dataset.z)});
+ root.querySelectorAll(".zone").forEach(g=>g.addEventListener("click",()=>pick(g.dataset.z)));
+ pick("rh");
+}
+
+/* ---------- experiment ---------- */
+const LIMBS={"Right hand":"क ख ग घ ङ","Left hand":"च छ ज झ ञ","Right foot":"ट ठ ड ढ ण","Left foot":"त थ द ध न"};
+const PREF=[["Plain letters","",""],["Add half-ष","ष्","ष of षट्कोण"],["Add half-क्ष","क्ष्","क्ष of क्षत्रिय"],["Add both","ष्क्ष्","half-ष + half-क्ष"],["Add half-ल too","ल्ष्क्ष्","the Laksh prefix"]];
+function initExp(root){
+ const seg=root.querySelector("#limbs"),out=root.querySelector("#lines");
+ seg.innerHTML=Object.keys(LIMBS).map((k,i)=>`<button data-k="${k}" aria-pressed="${i==0}">${k}</button>`).join("");
+ const draw=k=>{
+  seg.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.k===k));
+  const ls=LIMBS[k].split(" ");
+  out.innerHTML=PREF.map((p,i)=>`<div class="lrow${i==4?" best":""}"><div class="what"><b>Line ${i+1}: ${p[0]}</b>${p[2]}</div><div class="row">${ls.map(l=>p[1]+l).join("  ")}</div></div>`).join("");
+ };
+ seg.addEventListener("click",e=>{const b=e.target.closest("button");if(b)draw(b.dataset.k)});
+ draw("Right hand");
+}
+
+/* ---------- calculator ---------- */
+function initCalc(root){
+ const d=root.querySelector("#cDaily"),n=root.querySelector("#cDays"),sp=root.querySelector("#spark");
+ const f=v=>v.toLocaleString("en-IN");
+ const upd=()=>{
+  const daily=+d.value,days=+n.value;
+  root.querySelector("#oDaily").textContent=f(daily);
+  root.querySelector("#oDays").textContent=days;
+  root.querySelector("#cTotal").textContent=f(daily*days);
+  const max=5000*360,x=days/360*300,y=80-(daily*days)/max*76;
+  sp.innerHTML=`<line x1="0" y1="80" x2="300" y2="${80-daily*360/max*76}" stroke="var(--line)" stroke-width="2" vector-effect="non-scaling-stroke"/><polygon points="0,80 ${x},${y} ${x},80" fill="var(--accent-soft)"/><line x1="0" y1="80" x2="${x}" y2="${y}" stroke="var(--accent)" stroke-width="3" vector-effect="non-scaling-stroke"/>`;
+ };
+ d.addEventListener("input",upd);n.addEventListener("input",upd);upd();
+}
+
+/* ---------- hub + deck ---------- */
+const hub=document.getElementById("hub"),deck=document.getElementById("deck"),slide=document.getElementById("slide");
+document.getElementById("parts").innerHTML=PARTS.map((p,pi)=>`
+ <section class="part"><div class="part-head"><span class="num">${p.n}</span><h2>${p.title}</h2><span class="sub">${p.sub}</span></div>
+ <div class="tiles">${S.map((s,i)=>s.part===pi?`<button class="tile" data-i="${i}"><span class="glyph">${s.glyph}</span><h3>${s.title}</h3><p>${s.blurb}</p><span class="ts">▶ ${s.ts}</span></button>`:"").join("")}</div></section>`).join("");
+document.getElementById("dots").innerHTML=S.map((s,i)=>`<button data-i="${i}" aria-label="${s.title}"></button>`).join("");
+
+let cur=-1;
+function show(i,push=true){
+ cur=i;
+ if(i<0){deck.hidden=true;hub.hidden=false;if(push)setHash("");return}
+ const s=S[i];hub.hidden=true;deck.hidden=false;
+ slide.innerHTML=`<div class="kicker"><span class="eyebrow">Part ${PARTS[s.part].n} · ${PARTS[s.part].title}</span>${watch(s.ts)}</div><h2>${s.title}</h2>${s.html()}`;
+ if(s.init)s.init(slide);
+ document.getElementById("pos").textContent=`${i+1} / ${S.length}`;
+ document.getElementById("prev").disabled=i===0;
+ document.getElementById("next").disabled=i===S.length-1;
+ document.querySelectorAll("#dots button").forEach((b,j)=>b.setAttribute("aria-current",j===i));
+ const p=S[i-1],n=S[i+1];
+ document.getElementById("navfoot").innerHTML=(p?`<button data-i="${i-1}"><small>← Previous</small><span>${p.title}</span></button>`:"")+(n?`<button class="next" data-i="${i+1}"><small>Next →</small><span>${n.title}</span></button>`:`<button class="next" data-i="-1"><small>Finished</small><span>Back to all topics</span></button>`);
+ window.scrollTo(0,0);slide.focus({preventScroll:true});
+ if(push)setHash(s.id);
+}
+function setHash(h){try{history.replaceState(null,"",h?"#"+h:location.pathname)}catch(e){}}
+document.addEventListener("click",e=>{
+ const t=e.target.closest(".tile,#dots button,#navfoot button");
+ if(t){show(+t.dataset.i);}
+});
+document.getElementById("startBtn").onclick=e=>{e.preventDefault();show(0)};
+window.addEventListener("hashchange",()=>{const k=location.hash.slice(1),j=S.findIndex(s=>s.id===k);if(j>=0&&j!==cur)show(j,false);else if(!k&&cur>=0)show(-1,false)});
+document.getElementById("toHub").onclick=()=>show(-1);
+document.getElementById("prev").onclick=()=>cur>0&&show(cur-1);
+document.getElementById("next").onclick=()=>cur<S.length-1&&show(cur+1);
+document.addEventListener("keydown",e=>{
+ if(cur<0||e.target.matches("input"))return;
+ if(e.key==="ArrowRight"&&cur<S.length-1)show(cur+1);
+ else if(e.key==="ArrowLeft"&&cur>0)show(cur-1);
+ else if(e.key==="Escape")show(-1);
+});
+document.addEventListener("click",e=>{
+ const z=e.target.closest("[data-zoom]");
+ if(z){const lb=document.createElement("div");lb.className="lightbox";lb.setAttribute("role","dialog");lb.setAttribute("aria-label","Enlarged screenshot");
+  lb.innerHTML=`<div><img src="${z.dataset.zoom}" alt=""><p>${z.dataset.cap} · tap anywhere to close</p></div>`;
+  const close=()=>{lb.remove();document.removeEventListener("keydown",esc,true);z.focus()};
+  const esc=ev=>{if(ev.key==="Escape"){ev.stopPropagation();close()}};
+  lb.addEventListener("click",close);document.addEventListener("keydown",esc,true);document.body.appendChild(lb);return;}
+ const t=e.target.closest(".lightbox");if(t)t.remove();
+});
+const h=location.hash.slice(1),hi=S.findIndex(s=>s.id===h);
+if(hi>=0)show(hi,false);
+</script>
+
+</body></html>
